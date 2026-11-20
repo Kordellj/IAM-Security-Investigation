@@ -1,0 +1,2 @@
+Nov 19 19:40:28 kali-attacker sudo[12124]: pam_unix(sudo:auth): authentication failure; logname=kali uid=1000 euid=0 tty=/dev/pts/0 ruser=kali rhost=  user=kali
+Nov 19 19:40:47 kali-attacker sudo[12124]:     kali : TTY=pts/0 ; PWD=/home/kali/IAM-Security-Lab ; USER=root ; COMMAND=/usr/bin/whoami
