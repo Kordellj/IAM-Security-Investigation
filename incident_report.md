@@ -1,50 +1,38 @@
-# IAM Security Investigation Lab
+# IAM-001 — Linux Authentication and Privileged Command Investigation
 
-## Case ID
-IAM-001
+| Case detail | Value |
+| --- | --- |
+| Activity date | November 19, 2026 |
+| Classification | Authorized lab activity |
+| Severity | Informational |
+| Environment | Kali Linux VM in Oracle VirtualBox |
+| Host and account | `kali-attacker` and `kali` |
+| Evidence source | systemd journal, including Linux PAM and `sudo` messages |
 
-## Investigation Summary
-Investigated a failed authentication attempt
-followed by successful privileged command execution
-on a Kali Linux virtual machine.
+## Summary
 
-## Environment
-Operating System: Kali Linux
-Hostname: kali-attacker
-Account: kali
-Log Source: systemd journal
-Authentication: Linux PAM and sudo
+A deliberately incorrect password triggered a `sudo` authentication failure for the local `kali` account. Nineteen seconds later, the same `sudo` process logged `/usr/bin/whoami` with `root` as the target user. Both events occurred during the authorized lab exercise.
 
-## Evidence Timeline
+## Timeline
 
-19:40:28 - Failed sudo authentication for kali.
+Times are shown as recorded by the VM.
 
-19:40:47 - Successful privileged execution
-of /usr/bin/whoami.
+| Time | Recorded event |
+| --- | --- |
+| 19:40:28 | `pam_unix(sudo:auth)` recorded an authentication failure for `kali` on `/dev/pts/0`. |
+| 19:40:47 | `sudo` logged `COMMAND=/usr/bin/whoami` with `USER=root` and `TTY=pts/0`. PAM recorded the root session opening and closing at the same timestamp. |
 
-## Investigation Findings
+## Analysis
 
-The account experienced an authentication failure
-followed by successful privileged command execution.
+Both timeline entries contain the hostname `kali-attacker` and the process identifier `sudo[12124]`. The account and terminal fields align across the two records. The root session messages provide supporting context for the privileged command. An earlier LightDM authentication failure was recorded by a different service and was outside this `sudo` event sequence.
 
-The failed authentication was intentionally
-generated as part of an authorized lab exercise.
+## Disposition
 
-No evidence of unauthorized access was identified.
+The events matched the authorized test. No unauthorized access was identified in the evidence reviewed for this case, so account containment was unnecessary. In an operational environment, unexpected authentication failures, unfamiliar sources, or unexplained privileged commands would warrant further investigation and escalation under the applicable procedures.
 
-## Risk Assessment
-Severity: Informational
-Classification: Authorized testing
+## Supporting evidence
 
-## Recommended Response
-No account containment required.
-
-Continue monitoring authentication activity.
-
-Escalate if unexpected failures, unfamiliar sources,
-or unauthorized privileged activity are observed.
-
-## Conclusion
-This investigation demonstrated Linux authentication
-log analysis, event correlation, evidence collection,
-and security incident documentation.
+- [Original authentication log excerpt](evidence/authentication_events.txt)
+- [Paired sudo records](screenshots/01-sudo-authentication-correlation.png)
+- [Journal validation and session context](screenshots/02-journal-evidence-validation.png)
+- [Evidence export](screenshots/03-journal-evidence-export.png)
